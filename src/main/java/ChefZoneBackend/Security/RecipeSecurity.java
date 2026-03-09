@@ -17,11 +17,15 @@ public class RecipeSecurity {
     private UserService userService;
     
     public boolean isOwner(Long recipeId, String userEmail) {
-        Recipe recipe = recipeRepository.findById(recipeId)
-            .orElseThrow(() -> new RuntimeException("Receta no encontrada"));
-        
-        User user = userService.findByEmail(userEmail);
-        
-        return recipe.getUsuario().getId().equals(user.getId());
+        try {
+            Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RuntimeException("Receta no encontrada"));
+            
+            User user = userService.findByEmail(userEmail);
+            
+            return recipe.getUsuario().getId().equals(user.getId());
+        } catch (Exception e) {
+            return false; 
+        }
     }
 }

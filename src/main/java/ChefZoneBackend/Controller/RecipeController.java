@@ -33,13 +33,11 @@ public class RecipeController {
     @Autowired
     private UserService userService;
 
-    // ✅ PÚBLICO - Obtener todas las recetas
     @GetMapping
     public ResponseEntity<List<RecipeSummaryResponse>> getAllRecipes() {
         return ResponseEntity.ok(recipeService.getAllRecipes());
     }
 
-    // ✅ PÚBLICO - Obtener receta por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getRecipeById(@PathVariable Long id) {
         try {
@@ -50,7 +48,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ CUALQUIERA AUTENTICADO - Crear nueva receta
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> createRecipe(@RequestBody RecipeRequest request) {
@@ -66,7 +63,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ SOLO DUEÑO O ADMIN - Actualizar receta
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @recipeSecurity.isOwner(#id, authentication.principal.username)")
     public ResponseEntity<?> updateRecipe(
@@ -80,7 +76,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ SOLO DUEÑO O ADMIN - Eliminar receta
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @recipeSecurity.isOwner(#id, authentication.principal.username)")
     public ResponseEntity<?> deleteRecipe(@PathVariable Long id) {
@@ -92,7 +87,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ CUALQUIERA AUTENTICADO - Subir foto de receta
     @PostMapping("/{id}/foto")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> uploadRecipePhoto(
@@ -107,7 +101,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ SOLO DUEÑO O ADMIN - Eliminar foto de receta
     @DeleteMapping("/{id}/foto")
     @PreAuthorize("hasRole('ADMIN') or @recipeSecurity.isOwner(#id, authentication.principal.username)")
     public ResponseEntity<?> deleteRecipePhoto(@PathVariable Long id) {
@@ -119,27 +112,23 @@ public class RecipeController {
         }
     }
 
-    // ✅ PÚBLICO - Buscar recetas por categoría
     @GetMapping("/categoria/{categoriaId}")
     public ResponseEntity<List<RecipeSummaryResponse>> getRecipesByCategory(@PathVariable Long categoriaId) {
         return ResponseEntity.ok(recipeService.getRecipesByCategory(categoriaId));
     }
 
-    // ✅ PÚBLICO - Buscar recetas por ingrediente
     @GetMapping("/buscar/ingrediente")
     public ResponseEntity<List<RecipeSummaryResponse>> searchByIngredient(
             @RequestParam("q") String ingredient) {
         return ResponseEntity.ok(recipeService.searchByIngredient(ingredient));
     }
 
-    // ✅ PÚBLICO - Buscar recetas por título
     @GetMapping("/buscar/titulo")
     public ResponseEntity<List<RecipeSummaryResponse>> searchByTitle(
             @RequestParam("q") String title) {
         return ResponseEntity.ok(recipeService.searchByTitle(title));
     }
 
-    // ✅ CUALQUIERA AUTENTICADO - Dar o quitar like
     @PostMapping("/{id}/like")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> toggleLike(@PathVariable Long id) {
@@ -159,7 +148,6 @@ public class RecipeController {
         }
     }
 
-    // ✅ CUALQUIERA AUTENTICADO - Verificar si dio like
     @GetMapping("/{id}/like/estado")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getLikeStatus(@PathVariable Long id) {
