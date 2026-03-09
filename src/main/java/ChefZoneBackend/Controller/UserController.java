@@ -92,12 +92,20 @@ public class UserController {
         }
     }
 
-    // ✅ SOLO EL MISMO USUARIO O ADMIN - Subir foto de perfil
     @PostMapping("/{id}/foto")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.isSameUser(#id, authentication.principal.username)")
     public ResponseEntity<?> uploadProfilePhoto(
             @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) { // ✅ Inyectar Authentication
+
+        // 🔍 LOGS PARA DEBUG
+        System.out.println("=== SUBIENDO FOTO ===");
+        System.out.println("Usuario ID: " + id);
+        System.out.println("Authentication: " + (authentication != null ? authentication.getName() : "null"));
+        System.out.println("Autoridades: " + (authentication != null ? authentication.getAuthorities() : "null"));
+        System.out.println("¿Está autenticado?: " + (authentication != null && authentication.isAuthenticated()));
+
         try {
             User user = userService.updateProfilePhoto(id, file);
             UserProfileResponse profile = userService.getProfile(user.getId());
