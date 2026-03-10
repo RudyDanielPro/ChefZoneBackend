@@ -49,6 +49,7 @@ public class AuthController {
                     user.getApellido(),
                     user.getEmail(),
                     user.getUsuario(),
+                    user.getRol(), 
                     user.getFoto() != null ? user.getFoto().getRuta() : null);
 
             Map<String, Object> response = new HashMap<>();
@@ -79,7 +80,10 @@ public class AuthController {
                     user.getApellido(),
                     user.getEmail(),
                     user.getUsuario(),
+                    user.getRol(),
                     user.getFoto() != null ? user.getFoto().getRuta() : null);
+
+                
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", jwt);

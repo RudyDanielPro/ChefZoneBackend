@@ -6,18 +6,21 @@ public class UserProfileResponse {
     private String apellido;
     private String email;
     private String usuario;
+    private String rol;
     private String fotoPerfil;
 
-    public UserProfileResponse() {
-    }
-
-    public UserProfileResponse(Long id, String nombre, String apellido, String email, String usuario, String fotoPerfil) {
+   
+    public UserProfileResponse(Long id, String nombre, String apellido, String email, String usuario, String rol, String fotoPerfil) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.usuario = usuario;
+        this.rol = rol;
         this.fotoPerfil = fotoPerfil;
+    }
+
+    public UserProfileResponse() {
     }
 
     public Long getId() {
@@ -67,4 +70,14 @@ public class UserProfileResponse {
     public void setFotoPerfil(String fotoPerfil) {
         this.fotoPerfil = fotoPerfil;
     }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    
 }
