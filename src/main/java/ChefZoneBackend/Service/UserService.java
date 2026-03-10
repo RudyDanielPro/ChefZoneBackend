@@ -156,7 +156,8 @@ public class UserService {
         }
     }
 
-    // ✅ ACTUALIZADO: Convertir entidad User a UserProfileResponse con los contadores
+    // ✅ ACTUALIZADO: Convertir entidad User a UserProfileResponse con los
+    // contadores
     private UserProfileResponse convertToProfileResponse(User user) {
         UserProfileResponse response = new UserProfileResponse();
         response.setId(user.getId());
@@ -164,21 +165,22 @@ public class UserService {
         response.setApellido(user.getApellido());
         response.setEmail(user.getEmail());
         response.setUsuario(user.getUsuario());
-        response.setRol(user.getRol()); // Asegurar que el rol se pasa
-        
+        response.setRol(user.getRol());
+
         if (user.getFoto() != null) {
             response.setFotoPerfil(user.getFoto().getRuta());
         }
 
-        // Lógica de contadores
-        long totalRecetas = recipeRepository.countByUsuario(user);
-        response.setRecetasCount((int) totalRecetas);
+        // 🟢 MEJORA: Contar recetas directamente
+        response.setRecetasCount(user.getRecetas().size());
 
-        List<Recipe> recetas = recipeRepository.findByUsuario(user);
-        long totalLikes = recetas.stream()
-                .mapToLong(r -> likeRepository.countByReceta(r))
+        // 🟢 MEJORA: Sumar todos los likes que han recibido sus recetas
+        // Esto cuenta cuántas veces a la gente "le han gustado" las cosas de este
+        // usuario
+        int totalLikesRecibidos = user.getRecetas().stream()
+                .mapToInt(r -> r.getLikes().size())
                 .sum();
-        response.setLikesCount((int) totalLikes);
+        response.setLikesCount(totalLikesRecibidos);
 
         return response;
     }
