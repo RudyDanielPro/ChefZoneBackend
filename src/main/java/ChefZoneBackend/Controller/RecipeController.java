@@ -35,7 +35,10 @@ public class RecipeController {
 
     @GetMapping
     public ResponseEntity<List<RecipeSummaryResponse>> getAllRecipes() {
-        return ResponseEntity.ok(recipeService.getAllRecipes());
+        List<RecipeSummaryResponse> recetas = recipeService.getAllRecipes();
+        // 🟢 Aseguramos que cada resumen tenga sus likes actualizados
+        recetas.forEach(r -> r.setCantidadLikes((int) likeService.getLikesCount(r.getId())));
+        return ResponseEntity.ok(recetas);
     }
 
     @GetMapping("/{id}")
@@ -55,7 +58,7 @@ public class RecipeController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
             User user = userService.findByEmail(email);
-            
+
             RecipeResponse recipe = recipeService.createRecipe(request, user.getId());
             return ResponseEntity.ok(recipe);
         } catch (RuntimeException e) {
@@ -136,12 +139,16 @@ public class RecipeController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
             User user = userService.findByEmail(email);
-            
+
+            // 🟢 Ejecutamos el cambio en la BD
             boolean liked = likeService.toggleLike(user.getId(), id);
-            
+
+            // 🟢 Obtenemos el conteo real directamente del servicio
+            long totalLikes = likeService.getLikesCount(id);
+
             return ResponseEntity.ok(Map.of(
-                "liked", liked,
-                "likesCount", likeService.getLikesCount(id)
+                    "liked", liked,
+                    "likesCount", totalLikes // Esto asegura que el JSON sea válido
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -155,14 +162,13 @@ public class RecipeController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
             User user = userService.findByEmail(email);
-            
+
             boolean hasLiked = likeService.hasUserLikedRecipe(user.getId(), id);
             long likesCount = likeService.getLikesCount(id);
-            
+
             return ResponseEntity.ok(Map.of(
-                "hasLiked", hasLiked,
-                "likesCount", likesCount
-            ));
+                    "hasLiked", hasLiked,
+                    "likesCount", likesCount));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

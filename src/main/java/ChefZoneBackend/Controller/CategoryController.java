@@ -20,8 +20,13 @@ public class CategoryController {
 
     // ✅ PÚBLICO - Obtener todas las categorías
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            // 🟢 Forzamos la respuesta como una lista limpia
+            return ResponseEntity.ok(categoryService.getAllCategories());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("[]"); // Devolvemos array vacío si falla
+        }
     }
 
     // ✅ PÚBLICO - Obtener categoría por ID
@@ -42,11 +47,11 @@ public class CategoryController {
         try {
             String nombre = request.get("nombre");
             String descripcion = request.get("descripcion");
-            
+
             if (nombre == null || nombre.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
             }
-            
+
             Category category = categoryService.createCategory(nombre, descripcion);
             return ResponseEntity.ok(category);
         } catch (RuntimeException e) {
@@ -63,7 +68,7 @@ public class CategoryController {
         try {
             String nombre = request.get("nombre");
             String descripcion = request.get("descripcion");
-            
+
             Category category = categoryService.updateCategory(id, nombre, descripcion);
             return ResponseEntity.ok(category);
         } catch (RuntimeException e) {
