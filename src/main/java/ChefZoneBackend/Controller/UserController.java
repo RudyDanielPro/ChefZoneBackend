@@ -5,6 +5,7 @@ import ChefZoneBackend.Dto.Response.RecipeSummaryResponse;
 import ChefZoneBackend.Dto.Response.UserProfileResponse;
 import ChefZoneBackend.Service.RecipeService;
 import ChefZoneBackend.Service.UserService;
+import ChefZoneBackend.Service.AuthService; // ✅ Añadido para resolver el error
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,10 @@ public class UserController {
 
     @Autowired
     private RecipeService recipeService;
+
+    // ✅ Inyección agregada para resolver el "authService cannot be resolved"
+    @Autowired
+    private AuthService authService; 
 
     // ✅ SOLO ADMIN - Listar todos los usuarios
     @GetMapping
@@ -97,9 +102,8 @@ public class UserController {
     public ResponseEntity<?> uploadProfilePhoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file,
-            Authentication authentication) { // ✅ Inyectar Authentication
+            Authentication authentication) {
 
-        // 🔍 LOGS PARA DEBUG
         System.out.println("=== SUBIENDO FOTO ===");
         System.out.println("Usuario ID: " + id);
         System.out.println("Authentication: " + (authentication != null ? authentication.getName() : "null"));
@@ -133,6 +137,39 @@ public class UserController {
         try {
             List<RecipeSummaryResponse> recipes = recipeService.getRecipesByUser(id);
             return ResponseEntity.ok(recipes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ✅ SOLO ADMIN - Registro de usuarios desde el Panel
+    @PostMapping("/registro-admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> registerByAdmin(@RequestBody ChefZoneBackend.Dto.Request.RegisterRequest request) {
+        try {
+            User user = authService.register(request);
+
+            if (request.getRol() != null) {
+                user.setRol(request.getRol());
+                userService.updateUser(user.getId(), user);
+            }
+
+            return ResponseEntity.ok(Map.of("message", "Usuario creado por el administrador correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ✅ SOLO ADMIN - Actualizar el rol de un usuario
+    @PutMapping("/{id}/rol")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateRole(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        try {
+            String nuevoRol = request.get("rol");
+            User user = userService.findById(id);
+            user.setRol(nuevoRol);
+            userService.updateUser(id, user);
+            return ResponseEntity.ok(Map.of("message", "Rol actualizado a " + nuevoRol));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

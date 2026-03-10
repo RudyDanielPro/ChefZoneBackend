@@ -8,9 +8,17 @@ public class UserProfileResponse {
     private String usuario;
     private String rol;
     private String fotoPerfil;
+    
+    // ✅ Nuevos campos para las estadísticas
+    private int recetasCount;
+    private int likesCount;
 
-   
-    public UserProfileResponse(Long id, String nombre, String apellido, String email, String usuario, String rol, String fotoPerfil) {
+    // Constructor vacío
+    public UserProfileResponse() {
+    }
+
+    // Constructor completo (Actualizado)
+    public UserProfileResponse(Long id, String nombre, String apellido, String email, String usuario, String rol, String fotoPerfil, int recetasCount, int likesCount) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -18,10 +26,11 @@ public class UserProfileResponse {
         this.usuario = usuario;
         this.rol = rol;
         this.fotoPerfil = fotoPerfil;
+        this.recetasCount = recetasCount;
+        this.likesCount = likesCount;
     }
 
-    public UserProfileResponse() {
-    }
+    // --- Getters y Setters ---
 
     public Long getId() {
         return id;
@@ -79,5 +88,21 @@ public class UserProfileResponse {
         this.rol = rol;
     }
 
+    // ✅ Nuevos Getters y Setters para estadísticas
     
+    public int getRecetasCount() {
+        return recetasCount;
+    }
+
+    public void setRecetasCount(int recetasCount) {
+        this.recetasCount = recetasCount;
+    }
+
+    public int getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(int likesCount) {
+        this.likesCount = likesCount;
+    }
 }

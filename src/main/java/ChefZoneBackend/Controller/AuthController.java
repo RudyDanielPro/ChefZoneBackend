@@ -6,6 +6,7 @@ import ChefZoneBackend.Dto.Request.RegisterRequest;
 import ChefZoneBackend.Dto.Response.UserProfileResponse;
 import ChefZoneBackend.Security.JwtUtils;
 import ChefZoneBackend.Service.AuthService;
+import ChefZoneBackend.Service.UserService; // ✅ Inyectamos el servicio de usuario
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,9 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
+    private UserService userService; // ✅ Nueva inyección necesaria
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -43,14 +47,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateToken((UserDetails) authentication.getPrincipal());
 
-            UserProfileResponse userResponse = new UserProfileResponse(
-                    user.getId(),
-                    user.getNombre(),
-                    user.getApellido(),
-                    user.getEmail(),
-                    user.getUsuario(),
-                    user.getRol(), 
-                    user.getFoto() != null ? user.getFoto().getRuta() : null);
+            UserProfileResponse userResponse = userService.getProfile(user.getId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", jwt);
@@ -74,16 +71,8 @@ public class AuthController {
 
             User user = authService.authenticate(request);
 
-            UserProfileResponse userResponse = new UserProfileResponse(
-                    user.getId(),
-                    user.getNombre(),
-                    user.getApellido(),
-                    user.getEmail(),
-                    user.getUsuario(),
-                    user.getRol(),
-                    user.getFoto() != null ? user.getFoto().getRuta() : null);
-
-                
+            // ✅ CORRECCIÓN: Usamos el servicio para obtener el perfil con sus estadísticas reales
+            UserProfileResponse userResponse = userService.getProfile(user.getId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", jwt);

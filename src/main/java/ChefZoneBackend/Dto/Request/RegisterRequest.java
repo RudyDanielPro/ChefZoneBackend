@@ -6,17 +6,23 @@ public class RegisterRequest {
     private String email;
     private String usuario;
     private String password;
+    private String rol;
 
+    // Constructor vacío (Necesario para que Jackson serialice el JSON)
     public RegisterRequest() {
     }
 
-    public RegisterRequest(String nombre, String apellido, String email, String usuario, String password) {
+    // Constructor completo actualizado con el campo 'rol'
+    public RegisterRequest(String nombre, String apellido, String email, String usuario, String password, String rol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.usuario = usuario;
         this.password = password;
+        this.rol = rol;
     }
+
+    // --- Getters y Setters ---
 
     public String getNombre() {
         return nombre;
@@ -56,5 +62,13 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 }
