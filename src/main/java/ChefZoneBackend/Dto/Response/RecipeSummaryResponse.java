@@ -8,21 +8,25 @@ public class RecipeSummaryResponse {
     private String autorNombre;
     private String imagenUrl;
     private int cantidadLikes;
+    private boolean likedByCurrentUser; // 🟢 Nuevo campo
 
-    public RecipeSummaryResponse() {
-    }
+    
 
-    public RecipeSummaryResponse(Long id, String titulo, String descripcionCorta, String categoriaNombre, 
-                                 String autorNombre, String imagenUrl, int cantidadLikes) {
-        this.id = id;
+    public RecipeSummaryResponse(String titulo, String descripcionCorta, String categoriaNombre, String autorNombre,
+            String imagenUrl, int cantidadLikes, boolean likedByCurrentUser) {
         this.titulo = titulo;
         this.descripcionCorta = descripcionCorta;
         this.categoriaNombre = categoriaNombre;
         this.autorNombre = autorNombre;
         this.imagenUrl = imagenUrl;
         this.cantidadLikes = cantidadLikes;
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 
+    public RecipeSummaryResponse() {
+    }
+
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -77,5 +81,13 @@ public class RecipeSummaryResponse {
 
     public void setCantidadLikes(int cantidadLikes) {
         this.cantidadLikes = cantidadLikes;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
+
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 }

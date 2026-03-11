@@ -4,6 +4,7 @@ import ChefZoneBackend.Entity.Category;
 import ChefZoneBackend.Entity.Recipe;
 import ChefZoneBackend.Entity.RecipeFoto;
 import ChefZoneBackend.Entity.User;
+import ChefZoneBackend.Dto.RecipeDTO;
 import ChefZoneBackend.Dto.Request.RecipeRequest;
 import ChefZoneBackend.Dto.Response.RecipeResponse;
 import ChefZoneBackend.Dto.Response.RecipeSummaryResponse;
@@ -12,6 +13,8 @@ import ChefZoneBackend.Repository.LikeRepository;
 import ChefZoneBackend.Repository.RecipeRepository;
 import ChefZoneBackend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -34,6 +37,15 @@ public class RecipeService {
     
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    // 🟢 Método auxiliar para obtener el usuario actual desde el contexto de seguridad
+    private User getCurrentUserEntity() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+        return userRepository.findByEmail(auth.getName()).orElse(null);
+    }
     
     public RecipeResponse createRecipe(RecipeRequest request, Long userId) {
         User user = userRepository.findById(userId)
@@ -102,10 +114,8 @@ public class RecipeService {
             .orElseThrow(() -> new RuntimeException("Receta no encontrada"));
         
         try {
-            // Subir nueva foto a Cloudinary
             String fotoUrl = cloudinaryService.uploadFile(file, "recipes");
             
-            // Eliminar foto anterior si existe
             if (recipe.getFoto() != null && recipe.getFoto().getRuta() != null) {
                 try {
                     String publicId = cloudinaryService.extractPublicIdFromUrl(recipe.getFoto().getRuta());
@@ -115,7 +125,6 @@ public class RecipeService {
                 }
             }
             
-            // Actualizar receta con nueva foto
             if (recipe.getFoto() == null) {
                 RecipeFoto foto = new RecipeFoto();
                 foto.setRuta(fotoUrl);
@@ -139,14 +148,10 @@ public class RecipeService {
         
         if (recipe.getFoto() != null) {
             try {
-                // Eliminar de Cloudinary
                 String publicId = cloudinaryService.extractPublicIdFromUrl(recipe.getFoto().getRuta());
                 cloudinaryService.deleteFile(publicId);
-                
-                // Eliminar de BD
                 recipe.setFoto(null);
                 recipeRepository.save(recipe);
-                
             } catch (Exception e) {
                 throw new RuntimeException("Error al eliminar foto: " + e.getMessage());
             }
@@ -176,7 +181,6 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(recipeId)
             .orElseThrow(() -> new RuntimeException("Receta no encontrada"));
         
-        // Eliminar foto de Cloudinary si existe
         if (recipe.getFoto() != null) {
             try {
                 String publicId = cloudinaryService.extractPublicIdFromUrl(recipe.getFoto().getRuta());
@@ -189,7 +193,9 @@ public class RecipeService {
         recipeRepository.delete(recipe);
     }
     
+    // 🟢 Métodos de conversión actualizados para manejar el estado del Like
     private RecipeResponse convertToResponse(Recipe recipe) {
+        User currentUser = getCurrentUserEntity();
         RecipeResponse response = new RecipeResponse();
         response.setId(recipe.getId());
         response.setTitulo(recipe.getTitulo());
@@ -203,13 +209,20 @@ public class RecipeService {
             response.setImagenUrl(recipe.getFoto().getRuta());
         }
         
-        long likesCount = likeRepository.countByReceta(recipe);
-        response.setCantidadLikes((int) likesCount);
+        response.setCantidadLikes((int) likeRepository.countByReceta(recipe));
+        
+        // Verificamos si el usuario actual le dio like
+        if (currentUser != null) {
+            response.setLikedByCurrentUser(likeRepository.existsByRecetaAndUsuario(recipe, currentUser));
+        } else {
+            response.setLikedByCurrentUser(false);
+        }
         
         return response;
     }
     
     private RecipeSummaryResponse convertToSummaryResponse(Recipe recipe) {
+        User currentUser = getCurrentUserEntity();
         RecipeSummaryResponse response = new RecipeSummaryResponse();
         response.setId(recipe.getId());
         response.setTitulo(recipe.getTitulo());
@@ -219,7 +232,6 @@ public class RecipeService {
             descCorta = descCorta.substring(0, 100) + "...";
         }
         response.setDescripcionCorta(descCorta);
-        
         response.setCategoriaNombre(recipe.getCategoria().getNombre());
         response.setAutorNombre(recipe.getUsuario().getNombre() + " " + recipe.getUsuario().getApellido());
         
@@ -227,9 +239,30 @@ public class RecipeService {
             response.setImagenUrl(recipe.getFoto().getRuta());
         }
         
-        long likesCount = likeRepository.countByReceta(recipe);
-        response.setCantidadLikes((int) likesCount);
+        response.setCantidadLikes((int) likeRepository.countByReceta(recipe));
+        
+        // Verificamos si el usuario actual le dio like
+        if (currentUser != null) {
+            response.setLikedByCurrentUser(likeRepository.existsByRecetaAndUsuario(recipe, currentUser));
+        } else {
+            response.setLikedByCurrentUser(false);
+        }
         
         return response;
+    }
+
+    public RecipeDTO mapToDTO(Recipe recipe, User currentUser) {
+        RecipeDTO dto = new RecipeDTO();
+        dto.setId(recipe.getId());
+        dto.setTitulo(recipe.getTitulo());
+        dto.setLikesCount((int) likeRepository.countByReceta(recipe));
+
+        if (currentUser != null) {
+            dto.setLikedByCurrentUser(likeRepository.existsByRecetaAndUsuario(recipe, currentUser));
+        } else {
+            dto.setLikedByCurrentUser(false);
+        }
+
+        return dto;
     }
 }

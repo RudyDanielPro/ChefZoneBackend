@@ -11,6 +11,8 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     Optional<Like> findByUsuarioAndReceta(User usuario, Recipe receta);
 
+    boolean existsByRecetaAndUsuario(Recipe receta, User usuario);
+
     long countByReceta(Recipe receta);
 
     List<Like> findByUsuario(User usuario);
