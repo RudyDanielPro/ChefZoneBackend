@@ -6,6 +6,7 @@ public class RecipeSummaryResponse {
     private String descripcionCorta;
     private String categoriaNombre;
     private String autorNombre;
+    private String autorFoto;
     private String imagenUrl;
     private int cantidadLikes;
     private boolean likedByCurrentUser; // 🟢 Nuevo campo
@@ -13,11 +14,12 @@ public class RecipeSummaryResponse {
     
 
     public RecipeSummaryResponse(String titulo, String descripcionCorta, String categoriaNombre, String autorNombre,
-            String imagenUrl, int cantidadLikes, boolean likedByCurrentUser) {
+            String autorFoto, String imagenUrl, int cantidadLikes, boolean likedByCurrentUser) {
         this.titulo = titulo;
         this.descripcionCorta = descripcionCorta;
         this.categoriaNombre = categoriaNombre;
         this.autorNombre = autorNombre;
+        this.autorFoto = autorFoto;
         this.imagenUrl = imagenUrl;
         this.cantidadLikes = cantidadLikes;
         this.likedByCurrentUser = likedByCurrentUser;
@@ -90,4 +92,13 @@ public class RecipeSummaryResponse {
     public void setLikedByCurrentUser(boolean likedByCurrentUser) {
         this.likedByCurrentUser = likedByCurrentUser;
     }
+
+    public String getAutorFoto() {
+        return autorFoto;
+    }
+
+    public void setAutorFoto(String autorFoto) {
+        this.autorFoto = autorFoto;
+}
+
 }

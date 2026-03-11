@@ -8,25 +8,29 @@ public class RecipeResponse {
     private String ingredientes;
     private String categoriaNombre;
     private String autorNombre;
+    private String autorFoto; // 🟢 NUEVO: Campo añadido para la foto del autor
     private String imagenUrl;
     private int cantidadLikes;
-    private boolean likedByCurrentUser; // 🟢 Nuevo campo
+    private boolean likedByCurrentUser;
 
-    public RecipeResponse(String titulo, String descripcion, String instrucciones, String ingredientes,
-            String categoriaNombre, String autorNombre, String imagenUrl, int cantidadLikes,
+    public RecipeResponse() {
+    }
+
+    // Constructor actualizado
+    public RecipeResponse(Long id, String titulo, String descripcion, String instrucciones, String ingredientes,
+            String categoriaNombre, String autorNombre, String autorFoto, String imagenUrl, int cantidadLikes,
             boolean likedByCurrentUser) {
+        this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.instrucciones = instrucciones;
         this.ingredientes = ingredientes;
         this.categoriaNombre = categoriaNombre;
         this.autorNombre = autorNombre;
+        this.autorFoto = autorFoto; // 🟢
         this.imagenUrl = imagenUrl;
         this.cantidadLikes = cantidadLikes;
         this.likedByCurrentUser = likedByCurrentUser;
-    }
-
-    public RecipeResponse() {
     }
 
     public Long getId() {
@@ -85,6 +89,14 @@ public class RecipeResponse {
         this.autorNombre = autorNombre;
     }
 
+    public String getAutorFoto() {
+        return autorFoto;
+    }
+
+    public void setAutorFoto(String autorFoto) {
+        this.autorFoto = autorFoto;
+    }
+
     public String getImagenUrl() {
         return imagenUrl;
     }
@@ -109,5 +121,5 @@ public class RecipeResponse {
         this.likedByCurrentUser = likedByCurrentUser;
     }
 
-   
+    
 }

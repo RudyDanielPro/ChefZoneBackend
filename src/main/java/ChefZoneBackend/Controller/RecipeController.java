@@ -148,7 +148,7 @@ public class RecipeController {
 
             return ResponseEntity.ok(Map.of(
                     "liked", liked,
-                    "likesCount", totalLikes // Esto asegura que el JSON sea válido
+                    "cantidadLikes", totalLikes // ✅ Ahora sí coincide con tu RecipeCard.tsx
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
